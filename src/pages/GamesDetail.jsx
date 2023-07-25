@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { uniqueWords } from "../utilities/words";
 import GameBoard from "./GameBoard";
 
 let socket;
@@ -131,9 +130,9 @@ const GamesDetail = () => {
                   {user.toUpperCase()}
                 </span>
                 {text}
+                <div ref={messagesEndRef}></div>
               </div>
             ))}
-            <div ref={messagesEndRef}></div>
           </div>
           <input
             className="h-[40px] w-full border-2 mb-4  px-2 text-[12px] text-[#333]"
