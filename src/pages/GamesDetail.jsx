@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { uniqueWords } from "../utilities/words";
@@ -9,33 +9,47 @@ let socket;
 const GamesDetail = () => {
   const loc = useLocation();
   const navigate = useNavigate();
-  const socketUrl = "localhost:5000";
+  const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
   const [gameData, setGameData] = useState({});
   const [userList, setUserlist] = useState([]);
   const [message, setMessage] = useState();
   const [messages, setMessages] = useState([]);
   const playerName = loc.search.split("&")[0].split("=")[1];
   const gameCode = loc.search.split("&")[1].split("=")[1];
+  const messagesEndRef = useRef(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   useEffect(() => {
     socket = io(socketUrl);
-    console.log(socket.id);
-    socket.emit("join", { playerName, gameCode }, () => {});
+    console.log(socket.id, playerName, gameCode);
+    socket.emit("join", { playerName, gameCode }, (data) => {
+      console.log(data);
+      // data.error === "Username is taken" && navigate("/games");
+    });
     return () => {
+      socket.on("disconnect", {}, (b) => {
+        console.log(b);
+      });
       socket.off();
     };
   }, [socketUrl, loc.search]);
 
   useEffect(() => {
     socket.on("message", (message) => {
+      console.log(message);
       setMessages([...messages, message]);
     });
   }, [messages]);
-  // useEffect(() => {
-  //   socket.on("userList", (list) => {
-  //     setUserlist([...list]);
-  //   });
-  // }, [userList]);
+  useEffect(() => {
+    socket.on("userList", (userList) => {
+      setUserlist([...userList]);
+    });
+  }, [userList]);
 
   useEffect(() => {
     socket.on("gamesEvent", (gameData) => {
@@ -52,7 +66,7 @@ const GamesDetail = () => {
       });
     }
   };
-  console.log(messages);
+  console.log(messages, userList);
 
   return (
     <>
@@ -119,6 +133,7 @@ const GamesDetail = () => {
                 {text}
               </div>
             ))}
+            <div ref={messagesEndRef}></div>
           </div>
           <input
             className="h-[40px] w-full border-2 mb-4  px-2 text-[12px] text-[#333]"

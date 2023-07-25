@@ -3,24 +3,27 @@ import { io } from "socket.io-client";
 import { uniqueWords } from "../utilities/words";
 
 let socket;
-const socketUrl = "localhost:5000";
+const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
 
 const GameBoard = () => {
   const getRandomWord = () =>
     uniqueWords[Math.floor(Math.random() * uniqueWords.length)];
-  const scrambleWord = (word) => {
-    show && setShow(false);
-    return word
-      .split("")
-      .sort(() => 0.5 - Math.random())
-      .join("");
-  };
 
   const [word, setWord] = useState(getRandomWord());
   const [guess, setGuess] = useState("");
   const [message, setMessage] = useState("");
   const [show, setShow] = useState(false);
   const [score, setScore] = useState(0);
+
+  const scrambleWord = () => {
+    const charArray = Array.from(word);
+    for (let i = charArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [charArray[i], charArray[j]] = [charArray[j], charArray[i]];
+    }
+    return charArray.join("");
+  };
+
   useEffect(() => {
     socket = io(socketUrl);
     if (uniqueWords.length === 0) {
@@ -66,27 +69,30 @@ const GameBoard = () => {
     uniqueWords.push(...updatedWords);
   };
 
-  console.log(uniqueWords.length);
   return (
     <div className="md:h-screen">
       <div className="border border-slate-700 h-[250px] p-2 rounded-lg relative overflow-hidden">
         {/* <p>Unscramble the word below:</p> */}
-        <h1 className="text-5xl text-fuchsia-600">{scrambleWord(word)}</h1>
+        <h1 className="text-5xl text-fuchsia-600">{scrambleWord()}</h1>
         {message && <p className="mt-[40px]">Correct word is: {word}</p>}
-
-        <input
-          className="absolute pl-5 h-14 bottom-1 left-1 border-t border-t-slate-700 w-full outline-none"
-          type="text"
-          value={guess}
-          disabled={message === "Failed"}
-          autoFocus
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
-          onChange={handleGuessChange}
-          placeholder="Your guess..."
-        />
-        {/* <button onClick={handleSubmit} type="submit">
-          Check
-        </button> */}
+        <div className="absolute pt-1 h-14 bottom-1 left-1 border-t border-t-slate-700 w-full outline-none">
+          <input
+            className="h-full w-full pl-5 outline-none"
+            type="text"
+            value={guess}
+            disabled={message === "Failed"}
+            autoFocus
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
+            onChange={handleGuessChange}
+            placeholder="Your guess..."
+          />
+          <span
+            onClick={handleSubmit}
+            className="h-14 absolute  bottom-[-3px] right-0 bg-fuchsia-700 text-white p-4 cursor-pointer"
+          >
+            Check
+          </span>
+        </div>
       </div>
       <div className="mt-4">{message && <p>{message}</p>}</div>
       <p className="text-fuchsia-600">Your Score: {score}</p>
