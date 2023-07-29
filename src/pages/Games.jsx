@@ -1,10 +1,28 @@
 import { ClickAwayListener } from "@mui/base";
+import { useEffect } from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Games = () => {
   const navigate = useNavigate();
+  const loc = useLocation();
 
+  useEffect(() => {
+    console.log(sessionStorage.getItem("reload"));
+    if (loc?.state?.reload) {
+      if (
+        !sessionStorage.getItem("reload") ||
+        sessionStorage.getItem("reload") === false
+      ) {
+        sessionStorage.setItem("reload", true);
+        window.location.reload();
+      }
+    }
+
+    return () => {
+      // sessionStorage.removeItem("reload");
+    };
+  }, []);
   const games = [
     {
       id: 1,
@@ -87,7 +105,7 @@ const Games = () => {
                   type="text"
                   placeholder="Enter your Username"
                   required
-                  value={data?.playerName}
+                  // value={data?.playerName}
                   onChange={(e) =>
                     setData({ ...data, playerName: e.target.value })
                   }
@@ -96,7 +114,7 @@ const Games = () => {
                   className="h-[40px] border mb-4 rounded-md px-2 text-[12px] text-[#333]"
                   type="text"
                   placeholder="Enter Game room code"
-                  value={data?.gameCode}
+                  // value={data?.gameCode}
                   onChange={(e) =>
                     setData({ ...data, gameCode: e.target.value })
                   }

@@ -4,28 +4,31 @@ import { io } from "socket.io-client";
 import GameBoard from "./GameBoard";
 
 let socket;
+// const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
+const socketUrl = "http://localhost:5000";
+socket = io(socketUrl);
 
 const GamesDetail = () => {
   const loc = useLocation();
   const navigate = useNavigate();
-  const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
+  const params = loc.search;
   const [gameData, setGameData] = useState({});
   const [userList, setUserlist] = useState([]);
   const [message, setMessage] = useState();
   const [messages, setMessages] = useState([]);
-  const playerName = loc.search.split("&")[0].split("=")[1];
-  const gameCode = loc.search.split("&")[1].split("=")[1];
+  const playerName = params.split("&")[0].split("=")[1];
+  const gameCode = params.split("&")[1].split("=")[1];
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
   useEffect(() => {
-    scrollToBottom();
+    // scrollToBottom();
   }, [messages]);
+
   useEffect(() => {
-    socket = io(socketUrl);
-    console.log(socket.id, playerName, gameCode);
     socket.emit("join", { playerName, gameCode }, (data) => {
       console.log(data);
       // data.error === "Username is taken" && navigate("/games");
@@ -36,16 +39,17 @@ const GamesDetail = () => {
       });
       socket.off();
     };
-  }, [socketUrl, loc.search]);
+  }, [socketUrl, params]);
 
   useEffect(() => {
     socket.on("message", (message) => {
-      console.log(message);
       setMessages([...messages, message]);
     });
   }, [messages]);
+
   useEffect(() => {
     socket.on("userList", (userList) => {
+      console.log(userList);
       setUserlist([...userList]);
     });
   }, [userList]);
@@ -76,8 +80,15 @@ const GamesDetail = () => {
         </span>
         <span
           onClick={() => {
+            socket.on("disconnect", {}, (b) => {
+              console.log(b);
+            });
             socket.off();
-            navigate("/");
+            navigate("/games", {
+              state: {
+                reload: true,
+              },
+            });
           }}
           className="absolute right-2 bg-red-950 p-1 px-2 rounded-full text-sm cursor-pointer"
         >

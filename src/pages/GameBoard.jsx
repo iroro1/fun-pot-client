@@ -3,7 +3,8 @@ import { io } from "socket.io-client";
 import { uniqueWords } from "../utilities/words";
 
 let socket;
-const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
+// const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
+const socketUrl = "http://localhost:5000";
 
 const GameBoard = () => {
   const getRandomWord = () =>
