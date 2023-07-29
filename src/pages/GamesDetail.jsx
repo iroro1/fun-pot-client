@@ -4,8 +4,8 @@ import { io } from "socket.io-client";
 import GameBoard from "./GameBoard";
 
 let socket;
-// const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
-const socketUrl = "http://localhost:5000";
+const socketUrl = "https://fun-pot-2a0ee1100e12.herokuapp.com/";
+// const socketUrl = "http://localhost:5000";
 socket = io(socketUrl);
 
 const GamesDetail = () => {
